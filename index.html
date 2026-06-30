@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Etsy US Market Seasonal Listing Calendar</title>
+    <meta name="description" content="Calculate and track the optimal upload windows for Etsy seasonal events. List products 2 to 3 months before traffic surges.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(22, 28, 45, 0.6);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --accent: #f45d48; /* Etsy Orange-Red */
+            --accent-glow: rgba(244, 93, 72, 0.15);
+            --primary: #8b5cf6; /* Indigo */
+            --primary-glow: rgba(139, 92, 246, 0.15);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-blur: blur(12px);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(244, 93, 72, 0.08) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+            animation: fadeIn 0.8s ease;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #f45d48 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+
+        /* Urgent Actions Recommendation Box */
+        .urgent-recommendation {
+            background: rgba(139, 92, 246, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 2.5rem;
+            backdrop-filter: var(--glass-blur);
+        }
+
+        .urgent-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .urgent-title span.pulse {
+            width: 10px;
+            height: 10px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 0 0 rgba(244, 93, 72, 0.7);
+            animation: pulse-red 2s infinite;
+        }
+
+        .urgent-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .urgent-column {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+        }
+
+        .urgent-column h5 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .urgent-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .urgent-item {
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            padding-bottom: 0.4rem;
+        }
+
+        .urgent-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .urgent-item-name {
+            font-weight: 600;
+        }
+
+        .urgent-item-date {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        /* Stats Dashboard */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+            animation: fadeIn 1s ease;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: var(--glass-blur);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(139, 92, 246, 0.3);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-info h3 {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-info p {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        /* Filters & Toolbar */
+        .toolbar {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            padding: 1.25rem;
+            border-radius: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            backdrop-filter: var(--glass-blur);
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .search-box input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px var(--primary-glow);
+        }
+
+        .search-box svg {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            fill: var(--text-secondary);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .filter-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.6rem 1.2rem;
+            border-radius: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px var(--primary-glow);
+        }
+
+        .year-select-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        select {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            padding: 0.6rem 1.2rem;
+            outline: none;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        /* Holiday Cards Grid */
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .event-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            backdrop-filter: var(--glass-blur);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .event-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(244, 93, 72, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+        }
+
+        .event-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent), var(--primary));
+        }
+
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .event-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .event-date {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 20px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-upcoming {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-secondary);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .status-optimal {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            animation: pulse-green 2s infinite;
+        }
+
+        .status-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .status-passed {
+            background: rgba(239, 68, 68, 0.05);
+            color: rgba(239, 68, 68, 0.6);
+            border: 1px solid rgba(239, 68, 68, 0.1);
+        }
+
+        /* Timeline Info */
+        .timeline-section {
+            border-top: 1px dashed var(--border-color);
+            margin-top: 1.25rem;
+            padding-top: 1.25rem;
+        }
+
+        .timeline-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .timeline-label {
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .timeline-value {
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .value-optimal {
+            color: var(--success);
+        }
+
+        .value-deadline {
+            color: var(--warning);
+        }
+
+        /* Custom Event Form Card */
+        .creator-section {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            backdrop-filter: var(--glass-blur);
+        }
+
+        .creator-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .input-group label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .input-group input, .input-group select {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px var(--primary-glow);
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: auto;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px var(--primary-glow);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(244, 93, 72, 0.4); }
+            70% { box-shadow: 0 0 0 6px rgba(244, 93, 72, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(244, 93, 72, 0); }
+        }
+
+        /* Quick Coach Tips Box */
+        .coach-tips {
+            background: linear-gradient(135deg, rgba(244, 93, 72, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
+            border: 1px solid rgba(244, 93, 72, 0.2);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .coach-avatar {
+            font-size: 2.5rem;
+        }
+
+        .coach-content h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .coach-content p {
+            color: var(--text-primary);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .filter-buttons {
+                justify-content: space-between;
+                width: 100%;
+            }
+            .filter-btn {
+                flex: 1;
+                text-align: center;
+                padding: 0.6rem 0.5rem;
+                font-size: 0.85rem;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Etsy US Listing Scheduler</h1>
+            <p class="subtitle">Upload seasonal listings 2 to 3 months before traffic peaks</p>
+        </header>
+
+        <!-- Coach Quote -->
+        <div class="coach-tips">
+            <span class="coach-avatar">💡</span>
+            <div class="coach-content">
+                <h4>Golden Rule from Coach</h4>
+                <p>To successfully sell on Etsy for seasonal events, you must list items <strong>at least 2 months (60 days)</strong>, preferably <strong>3 months (90 days)</strong> prior. This allows the Etsy algorithm to index, test, and optimize search results (SEO score) before shoppers start searching.</p>
+            </div>
+        </div>
+
+        <!-- Realtime Advice Section -->
+        <div class="urgent-recommendation">
+            <div class="urgent-title">
+                <span class="pulse"></span>
+                <span>Prepare Right Now (Computer Date: <span id="current-date-span">June 30, 2026</span>)</span>
+            </div>
+            <div class="urgent-grid">
+                <div class="urgent-column">
+                    <h5 style="color: var(--success);">🔥 START LISTING NOW (3mo prior)</h5>
+                    <ul class="urgent-list" id="urgent-list-optimal">
+                        <!-- Filled dynamically -->
+                    </ul>
+                </div>
+                <div class="urgent-column">
+                    <h5 style="color: var(--warning);">🚨 LAST CALL / URGENT (2mo prior)</h5>
+                    <ul class="urgent-list" id="urgent-list-warning">
+                        <!-- Filled dynamically -->
+                    </ul>
+                </div>
+                <div class="urgent-column">
+                    <h5 style="color: var(--info);">💡 UPCOMING (Design & Keyword Stage)</h5>
+                    <ul class="urgent-list" id="urgent-list-upcoming">
+                        <!-- Filled dynamically -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📅</div>
+                <div class="stat-info">
+                    <h3>Current Year</h3>
+                    <p id="current-year-display">2026</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color: var(--success);">🔥</div>
+                <div class="stat-info">
+                    <h3>Active Listing Windows</h3>
+                    <p id="active-windows-count">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color: var(--warning);">⚠️</div>
+                <div class="stat-info">
+                    <h3>Hurry / Last Call</h3>
+                    <p id="warning-windows-count">0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toolbar Filters -->
+        <div class="toolbar">
+            <div class="search-box">
+                <svg viewBox="0 0 24 24">
+                    <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                </svg>
+                <input type="text" id="search-input" placeholder="Search event name, tags or keywords...">
+            </div>
+
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="optimal">Active Window</button>
+                <button class="filter-btn" data-filter="warning">Last Call</button>
+                <button class="filter-btn" data-filter="upcoming">Upcoming</button>
+            </div>
+
+            <div class="year-select-wrapper">
+                <label for="year-select" style="font-size: 0.9rem; font-weight: 500; color: var(--text-secondary);">Target Year:</label>
+                <select id="year-select">
+                    <option value="2026">2026</option>
+                    <option value="2027">2027</option>
+                    <option value="2028">2028</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Holiday Cards Grid -->
+        <div class="events-grid" id="events-container">
+            <!-- Dynamic Event Cards will be inserted here -->
+        </div>
+
+        <!-- Custom Event Creator -->
+        <div class="creator-section">
+            <h3 class="creator-title">➕ Schedule a Custom Niche Event</h3>
+            <form id="custom-event-form">
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label for="custom-name">Event/Niche Name</label>
+                        <input type="text" id="custom-name" placeholder="e.g., Summer Graduation" required>
+                    </div>
+                    <div class="input-group">
+                        <label for="custom-month">Month</label>
+                        <select id="custom-month" required>
+                            <option value="0">January</option>
+                            <option value="1">February</option>
+                            <option value="2">March</option>
+                            <option value="3">April</option>
+                            <option value="4">May</option>
+                            <option value="5">June</option>
+                            <option value="6">July</option>
+                            <option value="7">August</option>
+                            <option value="8">September</option>
+                            <option value="9">October</option>
+                            <option value="10">November</option>
+                            <option value="11">December</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="custom-day">Day</label>
+                        <input type="number" id="custom-day" min="1" max="31" value="1" required>
+                    </div>
+                    <button type="submit" class="btn-submit">
+                        Calculate Dates
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Meeus/Jones/Butcher algorithm for Easter
+        function getEasterDate(year) {
+            const a = year % 19;
+            const b = Math.floor(year / 100);
+            const c = year % 100;
+            const d = Math.floor(b / 4);
+            const e = b % 4;
+            const f = Math.floor((b + 8) / 25);
+            const g = Math.floor((b - f + 1) / 3);
+            const h = (19 * a + b - d - g + 15) % 30;
+            const i = Math.floor(c / 4);
+            const k = c % 4;
+            const L = (32 + 2 * e + 2 * i - h - k) % 7;
+            const m = Math.floor((a + 11 * h + 22 * L) / 451);
+            const month = Math.floor((h + L - 7 * m + 114) / 31);
+            const day = ((h + L - 7 * m + 114) % 31) + 1;
+            return new Date(year, month - 1, day);
+        }
+
+        // US holiday dynamic formulas
+        function getMLKDay(year) {
+            // 3rd Monday of Jan
+            const date = new Date(year, 0, 1);
+            const day = date.getDay();
+            const firstMonday = 1 + ((1 - day + 7) % 7);
+            return new Date(year, 0, firstMonday + 14);
+        }
+
+        function getPresidentsDay(year) {
+            // 3rd Monday of Feb
+            const date = new Date(year, 1, 1);
+            const day = date.getDay();
+            const firstMonday = 1 + ((1 - day + 7) % 7);
+            return new Date(year, 1, firstMonday + 14);
+        }
+
+        function getEmployeeAppreciationDay(year) {
+            // 1st Friday of March
+            const date = new Date(year, 2, 1);
+            const day = date.getDay();
+            const firstFriday = (day === 5) ? 1 : 1 + ((5 - day + 7) % 7);
+            return new Date(year, 2, firstFriday);
+        }
+
+        function getAdminDay(year) {
+            // Wednesday of the last full week of April
+            const temp = new Date(year, 3, 30);
+            const day = temp.getDay();
+            const lastSaturday = 30 - ((day + 1) % 7);
+            return new Date(year, 3, lastSaturday - 3);
+        }
+
+        function getVeterinaryDay(year) {
+            // Last Saturday of April
+            const date = new Date(year, 3, 30);
+            const day = date.getDay();
+            return new Date(year, 3, 30 - ((day - 6 + 7) % 7));
+        }
+
+        function getTeacherDay(year) {
+            // Tuesday of the first full week of May
+            const date = new Date(year, 4, 1);
+            const day = date.getDay();
+            const firstSunday = (day === 0) ? 1 : 1 + (7 - day);
+            return new Date(year, 4, firstSunday + 2);
+        }
+
+        function getMothersDay(year) {
+            // Second Sunday of May
+            const date = new Date(year, 4, 1);
+            const day = date.getDay();
+            const firstSunday = day === 0 ? 1 : 1 + (7 - day);
+            return new Date(year, 4, firstSunday + 7);
+        }
+
+        function getMilitarySpouseDay(year) {
+            // Friday before Mother's Day
+            const mothersDay = getMothersDay(year);
+            const date = new Date(mothersDay);
+            date.setDate(mothersDay.getDate() - 2);
+            return date;
+        }
+
+        function getMemorialDay(year) {
+            // Last Monday of May
+            const date = new Date(year, 4, 31);
+            const day = date.getDay();
+            const daysToSubtract = (day === 0) ? 6 : (day - 1);
+            return new Date(year, 4, 31 - daysToSubtract);
+        }
+
+        function getFathersDay(year) {
+            // Third Sunday of June
+            const date = new Date(year, 5, 1);
+            const day = date.getDay();
+            const firstSunday = day === 0 ? 1 : 1 + (7 - day);
+            return new Date(year, 5, firstSunday + 14);
+        }
+
+        function getFriendshipDay(year) {
+            // First Sunday of August
+            const date = new Date(year, 7, 1);
+            const day = date.getDay();
+            const firstSunday = day === 0 ? 1 : 1 + (7 - day);
+            return new Date(year, 7, firstSunday);
+        }
+
+        function getLaborDay(year) {
+            // 1st Monday of Sept
+            const date = new Date(year, 8, 1);
+            const day = date.getDay();
+            const firstMonday = 1 + ((1 - day + 7) % 7);
+            return new Date(year, 8, firstMonday);
+        }
+
+        function getGrandparentsDay(year) {
+            // First Sunday after Labor Day
+            const laborDay = getLaborDay(year);
+            const date = new Date(laborDay);
+            date.setDate(laborDay.getDate() + 6);
+            return date;
+        }
+
+        function getITProDay(year) {
+            // Third Tuesday of September
+            const date = new Date(year, 8, 1);
+            const day = date.getDay();
+            const firstTuesday = 1 + ((2 - day + 7) % 7);
+            return new Date(year, 8, firstTuesday + 14);
+        }
+
+        function getColumbusDay(year) {
+            // 2nd Monday of Oct
+            const date = new Date(year, 9, 1);
+            const day = date.getDay();
+            const firstMonday = 1 + ((1 - day + 7) % 7);
+            return new Date(year, 9, firstMonday + 7);
+        }
+
+        function getThanksgiving(year) {
+            // 4th Thursday of November
+            const date = new Date(year, 10, 1);
+            const day = date.getDay();
+            const firstThursday = 1 + ((4 - day + 7) % 7);
+            return new Date(year, 10, firstThursday + 21);
+        }
+
+        // Base seasonal definition list (calculated per year dynamically)
+        const baseHolidays = [
+            { id: 'new_year', name: "New Year's Day", calculate: (yr) => new Date(yr, 0, 1), tags: "party, planning, calendar, new year" },
+            { id: 'police_day', name: "National Law Enforcement Appreciation Day", calculate: (yr) => new Date(yr, 0, 9), tags: "police, cop, law enforcement, officer gift" },
+            { id: 'pharmacist_day', name: "National Pharmacist Day", calculate: (yr) => new Date(yr, 0, 12), tags: "pharmacist, pharmacy, medicine, rx mug" },
+            { id: 'mlk_day', name: "Martin Luther King Jr. Day", calculate: (yr) => getMLKDay(yr), tags: "education, community, service, civil rights" },
+            { id: 'valentines', name: "Valentine's Day", calculate: (yr) => new Date(yr, 1, 14), tags: "love, gifts, jewelry, cards, romantic" },
+            { id: 'presidents_day', name: "President's Day", calculate: (yr) => getPresidentsDay(yr), tags: "patriotic, federal, sales, historic" },
+            { id: 'employee_appreciation', name: "Employee Appreciation Day", calculate: (yr) => getEmployeeAppreciationDay(yr), tags: "coworker, team gift, office, staff thank you" },
+            { id: 'dentist_day', name: "National Dentist's Day", calculate: (yr) => new Date(yr, 2, 6), tags: "dentist, dental, teeth, mug, graduation" },
+            { id: 'doctors_day', name: "National Doctors Day", calculate: (yr) => new Date(yr, 2, 30), tags: "doctor gift, medical, card, mug, stethoscope" },
+            { id: 'st_patricks', name: "St. Patrick's Day", calculate: (yr) => new Date(yr, 2, 17), tags: "green, clover, party, apparel, irish" },
+            { id: 'pet_day', name: "National Pet Day", calculate: (yr) => new Date(yr, 3, 11), tags: "dog mom, cat lover, custom pet portrait, collar" },
+            { id: 'admin_day', name: "Administrative Professionals Day", calculate: (yr) => getAdminDay(yr), tags: "secretary, office gift, boss, desk, admin assistant" },
+            { id: 'veterinary_day', name: "World Veterinary Day", calculate: (yr) => getVeterinaryDay(yr), tags: "vet, veterinarian, vet tech, animal hospital" },
+            { id: 'easter', name: "Easter Sunday", calculate: (yr) => getEasterDate(yr), tags: "eggs, spring, decor, kids, basket stuffer" },
+            { id: 'earth_day', name: "Earth Day", calculate: (yr) => new Date(yr, 3, 22), tags: "eco-friendly, sustainable, nature, tote bag" },
+            { id: 'firefighters_day', name: "International Firefighters' Day", calculate: (yr) => new Date(yr, 4, 4), tags: "firefighter, fire truck, hero gift, retirement" },
+            { id: 'teacher_day', name: "Teacher Appreciation Day", calculate: (yr) => getTeacherDay(yr), tags: "teacher gift, classroom, custom card, end of school" },
+            { id: 'nurses_day', name: "National Nurses Day", calculate: (yr) => new Date(yr, 4, 6), tags: "nurse appreciation, medical, stethoscope, mug, nursing week" },
+            { id: 'military_spouse', name: "Military Spouse Appreciation Day", calculate: (yr) => getMilitarySpouseDay(yr), tags: "milspouse, deployment, army wife, custom gift" },
+            { id: 'mothers_day', name: "Mother's Day", calculate: (yr) => getMothersDay(yr), tags: "mom, custom gift, cards, flowers, motherhood" },
+            { id: 'ems_week', name: "National EMS Week Peak", calculate: (yr) => new Date(yr, 4, 20), tags: "ems, paramedic, EMT, first responder" },
+            { id: 'memorial_day', name: "Memorial Day", calculate: (yr) => getMemorialDay(yr), tags: "summer, patriotism, remembrance, flag" },
+            { id: 'graduation_season', name: "Graduation Season Peak", calculate: (yr) => new Date(yr, 4, 25), tags: "grad, school, gifts, custom caps, class of 2026" },
+            { id: 'wedding_season', name: "Wedding Season Peak", calculate: (yr) => new Date(yr, 5, 1), tags: "wedding, bridesmaid, gifts, bride, customized hanger" },
+            { id: 'fathers_day', name: "Father's Day", calculate: (yr) => getFathersDay(yr), tags: "dad, personalized, rustic, tech, fatherhood" },
+            { id: 'juneteenth', name: "Juneteenth", calculate: (yr) => new Date(yr, 5, 19), tags: "freedom, black history, apparel, celebration" },
+            { id: 'flight_attendant', name: "National Flight Attendant Day", calculate: (yr) => new Date(yr, 5, 31), tags: "crew, travel, aviation, flight crew gift" },
+            { id: 'postal_worker', name: "National Postal Worker Day", calculate: (yr) => new Date(yr, 6, 1), tags: "mail carrier, mailman, USPS, post office" },
+            { id: 'independence_day', name: "4th of July", calculate: (yr) => new Date(yr, 6, 4), tags: "summer, flags, bbq, apparel, independence" },
+            { id: 'christmas_in_july', name: "Christmas in July", calculate: (yr) => new Date(yr, 6, 25), tags: "sale, winter preview, early bird, shopping" },
+            { id: 'friendship_day', name: "National Friendship Day", calculate: (yr) => getFriendshipDay(yr), tags: "best friend, bff, friendship bracelet, distance gift" },
+            { id: 'back_to_school', name: "Back to School Peak", calculate: (yr) => new Date(yr, 7, 15), tags: "teacher, students, custom notebook, bags, classroom decor" },
+            { id: 'dog_day', name: "International Dog Day", calculate: (yr) => new Date(yr, 7, 26), tags: "dog lover, puppy, dog tags, pet bandana" },
+            { id: 'labor_day', name: "Labor Day", calculate: (yr) => getLaborDay(yr), tags: "fall, patriotic, end of summer, long weekend" },
+            { id: 'grandparents_day', name: "National Grandparents Day", calculate: (yr) => getGrandparentsDay(yr), tags: "grandma, grandpa, family gift, grandchildren" },
+            { id: 'it_pro_day', name: "National IT Professionals Day", calculate: (yr) => getITProDay(yr), tags: "IT, developer, computer nerd, system admin" },
+            { id: 'stepfamily_day', name: "National Stepfamily Day", calculate: (yr) => new Date(yr, 8, 16), tags: "stepmom, stepdad, blended family, bonus mom" },
+            { id: 'hr_pro_day', name: "HR Professional Appreciation Day", calculate: (yr) => new Date(yr, 8, 26), tags: "human resources, recruiter, manager gift" },
+            { id: 'coaches_day', name: "National Coaches Day", calculate: (yr) => new Date(yr, 9, 6), tags: "coach gift, football, soccer, custom whistle" },
+            { id: 'columbus_day', name: "Columbus Day / Indigenous Day", calculate: (yr) => getColumbusDay(yr), tags: "autumn, holiday weekend, travel" },
+            { id: 'boss_day', name: "National Boss's Day", calculate: (yr) => new Date(yr, 9, 16), tags: "boss gift, office humor, desk sign, leadership" },
+            { id: 'vet_tech_week', name: "National Veterinary Technician Week", calculate: (yr) => new Date(yr, 9, 15), tags: "vet tech, animal nurse, veterinary clinics" },
+            { id: 'halloween', name: "Halloween", calculate: (yr) => new Date(yr, 9, 31), tags: "spooky, costume, gothic, home decor, pumpkin" },
+            { id: 'accountant_day', name: "International Accounting Day", calculate: (yr) => new Date(yr, 10, 10), tags: "accountant, CPA, bookkeeper, finance humor" },
+            { id: 'veterans_day', name: "Veterans Day", calculate: (yr) => new Date(yr, 10, 11), tags: "veteran, army, navy, air force, military pride" },
+            { id: 'thanksgiving', name: "Thanksgiving & Black Friday", calculate: (yr) => getThanksgiving(yr), tags: "fall, shopping, cozy, family, holiday menu" },
+            { id: 'christmas', name: "Christmas & Winter Holidays", calculate: (yr) => new Date(yr, 11, 25), tags: "ornaments, stocking, gifts, wrapping, xmas" }
+        ];
+
+        let customHolidays = [];
+        let currentYear = 2026;
+        let currentFilter = 'all';
+
+        // Load custom events from localStorage if available
+        if (localStorage.getItem('etsy_custom_holidays')) {
+            try {
+                customHolidays = JSON.parse(localStorage.getItem('etsy_custom_holidays'));
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        const container = document.getElementById('events-container');
+        const yearSelect = document.getElementById('year-select');
+        const currentYearDisplay = document.getElementById('current-year-display');
+        const activeCount = document.getElementById('active-windows-count');
+        const warningCount = document.getElementById('warning-windows-count');
+        const searchInput = document.getElementById('search-input');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+
+        // Set select default to current year
+        const today = new Date();
+        document.getElementById('current-date-span').textContent = today.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+        const currentRealYear = today.getFullYear();
+        if (currentRealYear >= 2026 && currentRealYear <= 2028) {
+            currentYear = currentRealYear;
+            yearSelect.value = currentYear;
+        }
+
+        function calculateSchedule(holidayDate) {
+            const idealStart = new Date(holidayDate);
+            idealStart.setMonth(idealStart.getMonth() - 3); // 3 months before
+
+            const deadline = new Date(holidayDate);
+            deadline.setMonth(deadline.getMonth() - 2); // 2 months before
+
+            return { idealStart, deadline };
+        }
+
+        function determineStatus(holidayDate, idealStart, deadline) {
+            // Standardize comparison dates to midnight
+            const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            const hDate = new Date(holidayDate.getFullYear(), holidayDate.getMonth(), holidayDate.getDate());
+            const iStart = new Date(idealStart.getFullYear(), idealStart.getMonth(), idealStart.getDate());
+            const dLine = new Date(deadline.getFullYear(), deadline.getMonth(), deadline.getDate());
+
+            if (todayMidnight < iStart) {
+                return { key: 'upcoming', label: 'Upcoming Planning Phase', class: 'status-upcoming' };
+            } else if (todayMidnight >= iStart && todayMidnight < dLine) {
+                return { key: 'optimal', label: 'Optimal Window Open 🔥', class: 'status-optimal' };
+            } else if (todayMidnight >= dLine && todayMidnight <= hDate) {
+                return { key: 'warning', label: 'Last Call (Hurry) ⚠️', class: 'status-warning' };
+            } else {
+                return { key: 'passed', label: 'Passed 🏁', class: 'status-passed' };
+            }
+        }
+
+        function formatDate(date) {
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        function populateUrgentBox(allEvents) {
+            const optimalList = document.getElementById('urgent-list-optimal');
+            const warningList = document.getElementById('urgent-list-warning');
+            const upcomingList = document.getElementById('urgent-list-upcoming');
+
+            optimalList.innerHTML = '';
+            warningList.innerHTML = '';
+            upcomingList.innerHTML = '';
+
+            const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+            allEvents.forEach(ev => {
+                const li = document.createElement('li');
+                li.className = 'urgent-item';
+
+                if (ev.status.key === 'optimal') {
+                    li.innerHTML = `<span class="urgent-item-name">${ev.name}</span> <span class="urgent-item-date">Deadline: ${formatDate(ev.deadline)}</span>`;
+                    optimalList.appendChild(li);
+                } else if (ev.status.key === 'warning') {
+                    li.innerHTML = `<span class="urgent-item-name">${ev.name}</span> <span class="urgent-item-date">Target: ${formatDate(ev.date)}</span>`;
+                    warningList.appendChild(li);
+                } else if (ev.status.key === 'upcoming') {
+                    // Show if Ideal Start is in the next 45 days
+                    const diffTime = ev.idealStart - todayMidnight;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    if (diffDays <= 45 && diffDays > 0) {
+                        li.innerHTML = `<span class="urgent-item-name">${ev.name}</span> <span class="urgent-item-date">Starts in ${diffDays}d (${formatDate(ev.idealStart)})</span>`;
+                        upcomingList.appendChild(li);
+                    }
+                }
+            });
+
+            // Empty state handlers
+            if (!optimalList.children.length) {
+                optimalList.innerHTML = '<li style="font-size:0.85rem; color: var(--text-secondary);">No active gold-rush listing windows right now.</li>';
+            }
+            if (!warningList.children.length) {
+                warningList.innerHTML = '<li style="font-size:0.85rem; color: var(--text-secondary);">No urgent deadlines today. Nice job!</li>';
+            }
+            if (!upcomingList.children.length) {
+                upcomingList.innerHTML = '<li style="font-size:0.85rem; color: var(--text-secondary);">No upcoming seasons within 45 days.</li>';
+            }
+        }
+
+        function renderEvents() {
+            container.innerHTML = '';
+            currentYearDisplay.textContent = currentYear;
+
+            // Compute combined events
+            const events = [];
+
+            // Add base holidays
+            baseHolidays.forEach(h => {
+                const date = h.calculate(currentYear);
+                const { idealStart, deadline } = calculateSchedule(date);
+                const status = determineStatus(date, idealStart, deadline);
+                events.push({
+                    name: h.name,
+                    date,
+                    idealStart,
+                    deadline,
+                    status,
+                    tags: h.tags
+                });
+            });
+
+            // Add custom holidays
+            customHolidays.forEach(h => {
+                const date = new Date(currentYear, h.month, h.day);
+                const { idealStart, deadline } = calculateSchedule(date);
+                const status = determineStatus(date, idealStart, deadline);
+                events.push({
+                    name: h.name,
+                    date,
+                    idealStart,
+                    deadline,
+                    status,
+                    tags: "custom, niche",
+                    isCustom: true,
+                    originalIndex: h.id
+                });
+            });
+
+            // Sort events by chronological holiday date
+            events.sort((a, b) => a.date - b.date);
+
+            // Populate recommendations based on all events (always computed relative to current system year/date)
+            const currentRealYearEvents = [];
+            baseHolidays.forEach(h => {
+                const date = h.calculate(currentRealYear);
+                const { idealStart, deadline } = calculateSchedule(date);
+                const status = determineStatus(date, idealStart, deadline);
+                currentRealYearEvents.push({ name: h.name, date, idealStart, deadline, status });
+            });
+            customHolidays.forEach(h => {
+                const date = new Date(currentRealYear, h.month, h.day);
+                const { idealStart, deadline } = calculateSchedule(date);
+                const status = determineStatus(date, idealStart, deadline);
+                currentRealYearEvents.push({ name: h.name, date, idealStart, deadline, status });
+            });
+            populateUrgentBox(currentRealYearEvents);
+
+            let activeCountNum = 0;
+            let warningCountNum = 0;
+            const searchVal = searchInput.value.toLowerCase().trim();
+
+            events.forEach(ev => {
+                // Count states
+                if (ev.status.key === 'optimal') activeCountNum++;
+                if (ev.status.key === 'warning') warningCountNum++;
+
+                // Search Filter
+                const matchesSearch = ev.name.toLowerCase().includes(searchVal) || ev.tags.toLowerCase().includes(searchVal);
+                // Status Filter
+                const matchesFilter = currentFilter === 'all' || ev.status.key === currentFilter;
+
+                if (matchesSearch && matchesFilter) {
+                    const card = document.createElement('div');
+                    card.className = 'event-card';
+                    card.innerHTML = `
+                        <div>
+                            <div class="event-header">
+                                <div>
+                                    <div class="event-title">${ev.name}</div>
+                                    <div class="event-date">🇺🇸 Target Event: ${formatDate(ev.date)}</div>
+                                </div>
+                                <span class="status-badge ${ev.status.class}">${ev.status.label}</span>
+                            </div>
+                            <div class="timeline-section">
+                                <div class="timeline-row">
+                                    <span class="timeline-label">🌟 Ideal Start (3mo):</span>
+                                    <span class="timeline-value value-optimal">${formatDate(ev.idealStart)}</span>
+                                </div>
+                                <div class="timeline-row">
+                                    <span class="timeline-label">🚨 Listing Deadline (2mo):</span>
+                                    <span class="timeline-value value-deadline">${formatDate(ev.deadline)}</span>
+                                </div>
+                            </div>
+                        </div>
+                        ${ev.isCustom ? `<button onclick="deleteCustomEvent('${ev.originalIndex}')" style="background:none; border:none; color: var(--danger); font-size: 0.8rem; cursor: pointer; text-align: left; margin-top: 1rem; width: fit-content; text-decoration: underline;">Remove Event</button>` : ''}
+                    `;
+                    container.appendChild(card);
+                }
+            });
+
+            activeCount.textContent = activeCountNum;
+            warningCount.textContent = warningCountNum;
+        }
+
+        // Event Listeners
+        yearSelect.addEventListener('change', (e) => {
+            currentYear = parseInt(e.target.value);
+            renderEvents();
+        });
+
+        searchInput.addEventListener('input', renderEvents);
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                filterBtns.forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                currentFilter = e.target.getAttribute('data-filter');
+                renderEvents();
+            });
+        });
+
+        // Add custom event form
+        document.getElementById('custom-event-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('custom-name').value;
+            const month = parseInt(document.getElementById('custom-month').value);
+            const day = parseInt(document.getElementById('custom-day').value);
+
+            const newEvent = {
+                id: Date.now().toString(),
+                name,
+                month,
+                day
+            };
+
+            customHolidays.push(newEvent);
+            localStorage.setItem('etsy_custom_holidays', JSON.stringify(customHolidays));
+            document.getElementById('custom-event-form').reset();
+            renderEvents();
+        });
+
+        // Delete custom event
+        window.deleteCustomEvent = function(id) {
+            customHolidays = customHolidays.filter(h => h.id !== id);
+            localStorage.setItem('etsy_custom_holidays', JSON.stringify(customHolidays));
+            renderEvents();
+        };
+
+        // Initial render
+        renderEvents();
+    </script>
+</body>
+</html>
