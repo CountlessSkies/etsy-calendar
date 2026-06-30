@@ -977,17 +977,17 @@
                 li.className = 'urgent-item';
 
                 if (ev.status.key === 'optimal') {
-                    li.innerHTML = `<span class="urgent-item-name">${ev.name}</span> <span class="urgent-item-date">Deadline: ${formatDate(ev.deadline)}</span>`;
+                    li.innerHTML = `<span class="urgent-item-name">${ev.name}</span> <span class="urgent-item-date">Target: ${formatDate(ev.date)} (Deadline: ${formatDate(ev.deadline)})</span>`;
                     optimalList.appendChild(li);
                 } else if (ev.status.key === 'warning') {
-                    li.innerHTML = `<span class="urgent-item-name">${ev.name}</span> <span class="urgent-item-date">Target: ${formatDate(ev.date)}</span>`;
+                    li.innerHTML = `<span class="urgent-item-name">${ev.name}</span> <span class="urgent-item-date">Target: ${formatDate(ev.date)} (Passed Deadline!)</span>`;
                     warningList.appendChild(li);
                 } else if (ev.status.key === 'upcoming') {
                     // Show if Ideal Start is in the next 45 days
                     const diffTime = ev.idealStart - todayMidnight;
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                     if (diffDays <= 45 && diffDays > 0) {
-                        li.innerHTML = `<span class="urgent-item-name">${ev.name}</span> <span class="urgent-item-date">Starts in ${diffDays}d (${formatDate(ev.idealStart)})</span>`;
+                        li.innerHTML = `<span class="urgent-item-name">${ev.name}</span> <span class="urgent-item-date">Target: ${formatDate(ev.date)} (Starts in ${diffDays}d)</span>`;
                         upcomingList.appendChild(li);
                     }
                 }
