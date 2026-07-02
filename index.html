@@ -133,26 +133,68 @@
         }
 
         .urgent-item {
-            font-size: 0.9rem;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-            padding-bottom: 0.4rem;
+            flex-direction: column;
+            gap: 0.3rem;
+            padding: 0.7rem 0.9rem;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background 0.2s ease;
+        }
+
+        .urgent-item:hover {
+            background: rgba(255, 255, 255, 0.06);
         }
 
         .urgent-item:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
+            /* override any border-bottom if needed */
         }
 
         .urgent-item-name {
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 0.92rem;
+            color: var(--text-primary);
+            line-height: 1.3;
         }
 
-        .urgent-item-date {
+        .urgent-item-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            align-items: center;
+        }
+
+        .urgent-pill {
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        .pill-target {
+            background: rgba(255, 255, 255, 0.07);
             color: var(--text-secondary);
-            font-size: 0.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .pill-deadline {
+            background: rgba(245, 158, 11, 0.12);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .pill-countdown {
+            background: rgba(59, 130, 246, 0.12);
+            color: var(--info);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .pill-passed {
+            background: rgba(239, 68, 68, 0.08);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.15);
         }
 
         /* Stats Dashboard */
@@ -997,17 +1039,32 @@
                 li.className = 'urgent-item';
 
                 if (ev.status.key === 'optimal') {
-                    li.innerHTML = `<span class="urgent-item-name">${ev.name}</span> <span class="urgent-item-date">Target: ${formatDate(ev.date)} (Deadline: ${formatDate(ev.deadline)})</span>`;
+                    li.innerHTML = `
+                        <span class="urgent-item-name">${ev.name}</span>
+                        <div class="urgent-item-meta">
+                            <span class="urgent-pill pill-target">🎯 Target: ${formatDate(ev.date)}</span>
+                            <span class="urgent-pill pill-deadline">⏰ Deadline: ${formatDate(ev.deadline)}</span>
+                        </div>`;
                     optimalList.appendChild(li);
                 } else if (ev.status.key === 'warning') {
-                    li.innerHTML = `<span class="urgent-item-name">${ev.name}</span> <span class="urgent-item-date">Target: ${formatDate(ev.date)} (Passed Deadline!)</span>`;
+                    li.innerHTML = `
+                        <span class="urgent-item-name">${ev.name}</span>
+                        <div class="urgent-item-meta">
+                            <span class="urgent-pill pill-target">🎯 Target: ${formatDate(ev.date)}</span>
+                            <span class="urgent-pill pill-passed">🚨 Passed Deadline!</span>
+                        </div>`;
                     warningList.appendChild(li);
                 } else if (ev.status.key === 'upcoming') {
                     // Show if Ideal Start is in the next 45 days
                     const diffTime = ev.idealStart - todayMidnight;
                     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
                     if (diffDays <= 45 && diffDays > 0) {
-                        li.innerHTML = `<span class="urgent-item-name">${ev.name}</span> <span class="urgent-item-date">Target: ${formatDate(ev.date)} (Starts in ${diffDays}d)</span>`;
+                        li.innerHTML = `
+                            <span class="urgent-item-name">${ev.name}</span>
+                            <div class="urgent-item-meta">
+                                <span class="urgent-pill pill-target">🎯 Target: ${formatDate(ev.date)}</span>
+                                <span class="urgent-pill pill-countdown">📅 List in ${diffDays}d</span>
+                            </div>`;
                         upcomingList.appendChild(li);
                     }
                 }
