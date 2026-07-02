@@ -848,8 +848,25 @@
             return new Date(year, 10, firstThursday + 21);
         }
 
+        function getCyberMonday(year) {
+            // Monday after Thanksgiving (Thanksgiving + 4 days)
+            const thanksgiving = getThanksgiving(year);
+            const cyberMonday = new Date(thanksgiving);
+            cyberMonday.setDate(thanksgiving.getDate() + 4);
+            return cyberMonday;
+        }
+
+        function getVetTechWeek(year) {
+            // 3rd Sunday of October (Vet Tech Appreciation Week)
+            const date = new Date(year, 9, 1);
+            const day = date.getDay();
+            const firstSunday = (day === 0) ? 1 : 1 + (7 - day);
+            return new Date(year, 9, firstSunday + 14);
+        }
+
         // Base seasonal definition list (calculated per year dynamically)
         const baseHolidays = [
+            { id: 'new_years_eve', name: "New Year's Eve", calculate: (yr) => new Date(yr, 11, 31), tags: "nye, party, celebration, countdown, champagne" },
             { id: 'new_year', name: "New Year's Day", calculate: (yr) => new Date(yr, 0, 1), tags: "party, planning, calendar, new year" },
             { id: 'police_day', name: "National Law Enforcement Appreciation Day", calculate: (yr) => new Date(yr, 0, 9), tags: "police, cop, law enforcement, officer gift" },
             { id: 'pharmacist_day', name: "National Pharmacist Day", calculate: (yr) => new Date(yr, 0, 12), tags: "pharmacist, pharmacy, medicine, rx mug" },
@@ -860,6 +877,7 @@
             { id: 'dentist_day', name: "National Dentist's Day", calculate: (yr) => new Date(yr, 2, 6), tags: "dentist, dental, teeth, mug, graduation" },
             { id: 'doctors_day', name: "National Doctors Day", calculate: (yr) => new Date(yr, 2, 30), tags: "doctor gift, medical, card, mug, stethoscope" },
             { id: 'st_patricks', name: "St. Patrick's Day", calculate: (yr) => new Date(yr, 2, 17), tags: "green, clover, party, apparel, irish" },
+            { id: 'siblings_day', name: "National Siblings Day", calculate: (yr) => new Date(yr, 3, 10), tags: "brother, sister, sibling, custom gift, funny mug" },
             { id: 'pet_day', name: "National Pet Day", calculate: (yr) => new Date(yr, 3, 11), tags: "dog mom, cat lover, custom pet portrait, collar" },
             { id: 'admin_day', name: "Administrative Professionals Day", calculate: (yr) => getAdminDay(yr), tags: "secretary, office gift, boss, desk, admin assistant" },
             { id: 'veterinary_day', name: "World Veterinary Day", calculate: (yr) => getVeterinaryDay(yr), tags: "vet, veterinarian, vet tech, animal hospital" },
@@ -876,7 +894,7 @@
             { id: 'wedding_season', name: "Wedding Season Peak", calculate: (yr) => new Date(yr, 5, 1), tags: "wedding, bridesmaid, gifts, bride, customized hanger" },
             { id: 'fathers_day', name: "Father's Day", calculate: (yr) => getFathersDay(yr), tags: "dad, personalized, rustic, tech, fatherhood" },
             { id: 'juneteenth', name: "Juneteenth", calculate: (yr) => new Date(yr, 5, 19), tags: "freedom, black history, apparel, celebration" },
-            { id: 'flight_attendant', name: "National Flight Attendant Day", calculate: (yr) => new Date(yr, 5, 31), tags: "crew, travel, aviation, flight crew gift" },
+            { id: 'flight_attendant', name: "National Flight Attendant Day", calculate: (yr) => new Date(yr, 6, 19), tags: "crew, travel, aviation, flight crew gift" },
             { id: 'postal_worker', name: "National Postal Worker Day", calculate: (yr) => new Date(yr, 6, 1), tags: "mail carrier, mailman, USPS, post office" },
             { id: 'independence_day', name: "4th of July", calculate: (yr) => new Date(yr, 6, 4), tags: "summer, flags, bbq, apparel, independence" },
             { id: 'christmas_in_july', name: "Christmas in July", calculate: (yr) => new Date(yr, 6, 25), tags: "sale, winter preview, early bird, shopping" },
@@ -891,11 +909,13 @@
             { id: 'coaches_day', name: "National Coaches Day", calculate: (yr) => new Date(yr, 9, 6), tags: "coach gift, football, soccer, custom whistle" },
             { id: 'columbus_day', name: "Columbus Day / Indigenous Day", calculate: (yr) => getColumbusDay(yr), tags: "autumn, holiday weekend, travel" },
             { id: 'boss_day', name: "National Boss's Day", calculate: (yr) => new Date(yr, 9, 16), tags: "boss gift, office humor, desk sign, leadership" },
-            { id: 'vet_tech_week', name: "National Veterinary Technician Week", calculate: (yr) => new Date(yr, 9, 15), tags: "vet tech, animal nurse, veterinary clinics" },
+            { id: 'vet_tech_week', name: "National Veterinary Technician Week", calculate: (yr) => getVetTechWeek(yr), tags: "vet tech, animal nurse, veterinary clinics" },
             { id: 'halloween', name: "Halloween", calculate: (yr) => new Date(yr, 9, 31), tags: "spooky, costume, gothic, home decor, pumpkin" },
             { id: 'accountant_day', name: "International Accounting Day", calculate: (yr) => new Date(yr, 10, 10), tags: "accountant, CPA, bookkeeper, finance humor" },
             { id: 'veterans_day', name: "Veterans Day", calculate: (yr) => new Date(yr, 10, 11), tags: "veteran, army, navy, air force, military pride" },
             { id: 'thanksgiving', name: "Thanksgiving & Black Friday", calculate: (yr) => getThanksgiving(yr), tags: "fall, shopping, cozy, family, holiday menu" },
+            { id: 'cyber_monday', name: "Cyber Monday", calculate: (yr) => getCyberMonday(yr), tags: "sale, discount, online shopping, deals, gift" },
+            { id: 'christmas_eve', name: "Christmas Eve", calculate: (yr) => new Date(yr, 11, 24), tags: "last minute gift, xmas eve, holiday, gift wrap" },
             { id: 'christmas', name: "Christmas & Winter Holidays", calculate: (yr) => new Date(yr, 11, 25), tags: "ornaments, stocking, gifts, wrapping, xmas" }
         ];
 
